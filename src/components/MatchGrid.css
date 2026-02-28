@@ -1,0 +1,22 @@
+.match-grid-wrapper {
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.match-grid {
+  width: 100%;
+}
+
+.match-row-added {
+  background-color: rgba(46, 204, 113, 0.25);
+}
+
+.match-row-removed {
+  background-color: rgba(231, 76, 60, 0.25);
+}
+
+.match-row-normal {
+  background-color: white;
+}
+
