@@ -1,0 +1,13 @@
+export const POLL_INTERVAL = 5000;
+export const TIMEOUT_INTERVAL = 1000;
+export const MAX_RETRIES = 5;
+
+export const HTTP_STATUS_CLIENT_ERROR_MIN = 400;
+export const HTTP_STATUS_CLIENT_ERROR_MAX_EXCLUSIVE = 500;
+export const HTTP_STATUS_TOO_MANY_REQUESTS = 429;
+
+export const RETRY_BASE_DELAY_MS = 1000;
+export const RETRY_BACKOFF_FACTOR = 2;
+export const RETRY_JITTER_MAX_MS = 250;
+export const RETRY_DELAY_CAP_MS = 30000;
+export const RETRY_429_MIN_DELAY_MS = 5000;

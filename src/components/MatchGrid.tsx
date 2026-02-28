@@ -8,6 +8,8 @@ import './MatchGrid.css';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+const ROW_HEIGHT_PX = 30;
+
 interface MatchGridProps {
   matches: Match[];
 }
@@ -20,7 +22,7 @@ export function MatchGrid({ matches }: MatchGridProps) {
           theme="legacy"
           rowData={matches}
           columnDefs={columnDefs}
-          rowHeight={30}
+          rowHeight={ROW_HEIGHT_PX}
           getRowId={params => params.data.id}
           rowClassRules={{
             'match-row-added': (params) => params.data?.highlightStatus === HighlightStatus.ADDED,

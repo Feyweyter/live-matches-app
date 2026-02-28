@@ -3,24 +3,49 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchMatches } from '../services/matchApi';
 import { HighlightStatus, type MatchWithHighlight } from '../domain/match';
 import resetMatchesHighlights from '../utils/resetMatchesHighlights';
+import { HTTP_STATUS_CLIENT_ERROR_MAX_EXCLUSIVE, HTTP_STATUS_CLIENT_ERROR_MIN, HTTP_STATUS_TOO_MANY_REQUESTS, MAX_RETRIES, POLL_INTERVAL, RETRY_429_MIN_DELAY_MS, RETRY_BACKOFF_FACTOR, RETRY_BASE_DELAY_MS, RETRY_DELAY_CAP_MS, RETRY_JITTER_MAX_MS, TIMEOUT_INTERVAL } from '../constants';
+import { ApiError } from '../domain/api-error';
 
-const POLL_INTERVAL = 5000;
-const TIMEOUT_INTERVAL = 1000;
+function getErrorMessage(err: unknown): string {
+  if (err instanceof ApiError || err instanceof Error) return err.message;
+  return 'Unknown error';
+}
 
 
 export function useLiveMatches() {
   const [matches, setMatches] = useState<MatchWithHighlight[]>([]);
   const prevDataHashRef = useRef('');
   const matchesRef = useRef(matches);
-  matchesRef.current = matches;
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { data, isFetching, error, dataUpdatedAt } = useQuery({
+  const { data, isPending, isFetching, error, dataUpdatedAt, failureCount, refetch } = useQuery({
     queryKey: ['matches'],
     queryFn: fetchMatches,
     refetchInterval: POLL_INTERVAL,
+    retry: (count, err) => {
+      if (count >= MAX_RETRIES) return false;
+      if (err instanceof ApiError) {
+        const s = err.status;
+        if (s && s >= HTTP_STATUS_CLIENT_ERROR_MIN && s < HTTP_STATUS_CLIENT_ERROR_MAX_EXCLUSIVE && s !== HTTP_STATUS_TOO_MANY_REQUESTS) {
+          return false;
+        }
+      }
+      return true;
+    },
+    retryDelay: (count, err) => {
+      const base = RETRY_BASE_DELAY_MS * RETRY_BACKOFF_FACTOR ** Math.max(0, count - 1);
+      const jitter = Math.floor(Math.random() * RETRY_JITTER_MAX_MS);
+      const capped = Math.min(base + jitter, RETRY_DELAY_CAP_MS);
+      if (err instanceof ApiError && err.status === HTTP_STATUS_TOO_MANY_REQUESTS) return Math.max(capped, RETRY_429_MIN_DELAY_MS);
+      return capped;
+    },
   });
 
+  useEffect(() => {
+    matchesRef.current = matches;
+  }, [matches]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!data) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -74,11 +99,16 @@ export function useLiveMatches() {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [data]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return {
     matches,
-    isLoading: isFetching,
-    error: error?.message || null,
+    isInitialLoading: isPending && !data,
+    isUpdating: isFetching && !!data,
+    error: error ? getErrorMessage(error) : null,
+    retryAttempt: failureCount,
+    maxRetries: MAX_RETRIES,
+    retryNow: () => refetch(),
     lastUpdated: dataUpdatedAt ? new Date(dataUpdatedAt) : null,
   };
 }
