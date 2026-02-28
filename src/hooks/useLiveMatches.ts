@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMatches } from '../services/matchApi';
-import type { Match } from '../domain/match';
+import { HighlightStatus, type MatchWithHighlight } from '../domain/match';
+import resetMatchesHighlights from '../utils/resetMatchesHighlights';
 
 const POLL_INTERVAL = 5000;
+const TIMEOUT_INTERVAL = 1000;
 
-interface MatchWithHighlight extends Match {
-  highlightStatus?: 'added' | 'removed' | 'normal';
-}
 
 export function useLiveMatches() {
   const [matches, setMatches] = useState<MatchWithHighlight[]>([]);
@@ -31,7 +30,6 @@ export function useLiveMatches() {
       setMatches(data.map(m => ({ ...m, highlightStatus: 'normal' })));
     } else if (currentHash !== prevDataHash) {
       // Data changed - find what changed
-      
       const oldIds = new Set(JSON.parse(prevDataHash));
       const newIds = new Set(data.map(m => m.id));
       
@@ -39,46 +37,31 @@ export function useLiveMatches() {
       const removedMatches: MatchWithHighlight[] = [];
       matches.forEach(m => {
         if (!newIds.has(m.id)) {
-          removedMatches.push({ ...m, highlightStatus: 'removed' });
+          removedMatches.push({ ...m, highlightStatus: HighlightStatus.REMOVED });
         }
       });
       
       // Find new matches
       const newMatches: MatchWithHighlight[] = data
         .filter(m => !oldIds.has(m.id))
-        .map(m => ({ ...m, highlightStatus: 'added' }));
+        .map(m => ({ ...m, highlightStatus: HighlightStatus.ADDED }));
       
       // Find existing matches
       const existingMatches: MatchWithHighlight[] = data
         .filter(m => oldIds.has(m.id))
-        .map(m => ({ ...m, highlightStatus: 'normal' }));
-
-        console.log('existingMatches', existingMatches);
-        console.log('newMatches', newMatches);
-        console.log('removedMatches', removedMatches);
+        .map(m => ({ ...m, highlightStatus: HighlightStatus.NORMAL }));
       
       // Combine all matches
       const allMatches = [...removedMatches, ...newMatches, ...existingMatches].sort((a, b) => a.id.localeCompare(b.id));
       setMatches(allMatches);
       
       // Reset highlights after 1 second
-     setTimeout(() => {
-        setMatches(prev => 
-          prev.map(m => {
-            if (m.highlightStatus === 'added' || m.highlightStatus === 'removed') {
-              // For removed matches, we want them to disappear after highlight
-              if (m.highlightStatus === 'removed') {
-                return null; // We'll filter these out
-              }
-              return { ...m, highlightStatus: 'normal' };
-            }
-            return m;
-          }).filter(Boolean) as MatchWithHighlight[]
-        );
-      }, 3000);
+      setTimeout(() => {
+        setMatches(resetMatchesHighlights);
+      }, TIMEOUT_INTERVAL);
     } else {
       // No changes - just update data
-      setMatches(data.map(m => ({ ...m, highlightStatus: 'normal' })));
+      setMatches(data.map(m => ({ ...m, highlightStatus: HighlightStatus.NORMAL })));
     }
     
     setPrevDataHash(currentHash);

@@ -1,4 +1,10 @@
-export type HighlightStatus = 'normal' | 'added' | 'removed';
+export const HighlightStatus = {
+  NORMAL: 'normal',
+  ADDED: 'added',
+  REMOVED: 'removed',
+} as const;
+
+export type HighlightStatus = (typeof HighlightStatus)[keyof typeof HighlightStatus];
 
 export interface Match {
   id: string;
@@ -18,5 +24,9 @@ export interface Match {
 
 export interface MatchesResponse {
   matches: Match[];
+}
+
+export interface MatchWithHighlight extends Match {
+  highlightStatus?: HighlightStatus;
 }
 
