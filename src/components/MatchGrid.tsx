@@ -21,7 +21,6 @@ export function MatchGrid({ matches }: MatchGridProps) {
           rowData={matches}
           columnDefs={columnDefs}
           rowHeight={30}
-          domLayout="autoHeight"
           getRowId={params => params.data.id}
           rowClassRules={{
             'match-row-added': (params) => params.data?.highlightStatus === HighlightStatus.ADDED,

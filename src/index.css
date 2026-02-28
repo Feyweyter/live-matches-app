@@ -26,6 +26,12 @@ body {
   margin: 0;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
