@@ -18,7 +18,6 @@ export const columnDefs: ColDef<Match>[] = [
     flex: FLEX_NORMAL,
     minWidth: MIN_WIDTH_SPORT,
     sortable: true,
-    sort: 'asc',
   },
   {
     field: 'league',
@@ -26,7 +25,6 @@ export const columnDefs: ColDef<Match>[] = [
     flex: FLEX_WIDE,
     minWidth: MIN_WIDTH_WIDE,
     sortable: true,
-    sort: 'asc',
   },
   {
     field: 'homeTeam',
@@ -34,7 +32,6 @@ export const columnDefs: ColDef<Match>[] = [
     flex: FLEX_WIDE,
     minWidth: MIN_WIDTH_WIDE,
     sortable: true,
-    sort: 'asc',
   },
   {
     field: 'awayTeam',
@@ -42,7 +39,6 @@ export const columnDefs: ColDef<Match>[] = [
     flex: FLEX_WIDE,
     minWidth: MIN_WIDTH_WIDE,
     sortable: true,
-    sort: 'asc',
   },
   {
     headerName: 'Score',
@@ -56,7 +52,6 @@ export const columnDefs: ColDef<Match>[] = [
     flex: FLEX_NORMAL,
     minWidth: MIN_WIDTH_STATUS,
     sortable: true,
-    sort: 'asc',
   },
   { field: 'matchTime', headerName: 'Time', flex: FLEX_NORMAL, minWidth: MIN_WIDTH_DEFAULT },
   { field: 'venue', headerName: 'Venue', flex: FLEX_WIDE, minWidth: MIN_WIDTH_WIDE },
