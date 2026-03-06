@@ -65,7 +65,91 @@ npm run preview
 
 # Lint the codebase
 npm run lint
+
+# Run tests once
+npm test -- --run
+
+# Run tests in watch mode (auto-rerun on changes)
+npm test
+
+# View interactive test UI dashboard
+npm run test:ui
+
+# Generate code coverage report
+npm run test:coverage
 ```
+
+---
+
+## Testing
+
+This project includes a comprehensive test suite with **40 passing tests** covering:
+
+### Test Coverage
+- ✅ **Domain Models** (100% coverage) - Custom error classes and types
+- ✅ **Services** (86.2% coverage) - API client with error handling
+- ✅ **Utilities** (100% coverage) - Highlight reset logic
+- ✅ **Components** (100% coverage) - Grid rendering and interactions
+- ✅ **Hooks** - Live match polling state management
+- ✅ **Main App** - Component structure and integration
+
+### Running Tests
+
+```bash
+# Run all tests once and exit
+npm test -- --run
+
+# Watch mode - automatically re-run on file changes
+npm test
+
+# Open interactive test dashboard UI
+npm run test:ui
+
+# Generate HTML coverage report
+npm run test:coverage
+```
+
+### Test Files
+
+All test files are co-located with their source code:
+
+```
+src/
+├── domain/api-error.test.ts          (7 tests)
+├── services/matchApi.test.ts         (8 tests)
+├── utils/resetMatchesHighlights.test.ts (9 tests)
+├── hooks/useLiveMatches.test.ts      (3 tests)
+├── components/MatchGrid.test.tsx     (11 tests)
+└── App.test.ts                       (2 tests)
+```
+
+### Test Stack
+
+- **Vitest** - Fast unit testing framework
+- **React Testing Library** - Component testing utilities
+- **jsdom** - DOM environment simulation
+
+### Writing Tests
+
+Tests follow the Arrange-Act-Assert pattern with clear, descriptive names:
+
+```typescript
+it('should fetch matches successfully', async () => {
+  // Arrange
+  const mockFetch = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ matches: mockData }),
+  });
+
+  // Act
+  const result = await fetchMatches();
+
+  // Assert
+  expect(result).toEqual(mockData);
+});
+```
+
+For more information, see [`TESTING.md`](./TESTING.md).
 
 ---
 
